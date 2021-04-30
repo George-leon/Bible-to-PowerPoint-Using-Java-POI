@@ -1,0 +1,157 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import org.apache.poi.sl.usermodel.TextParagraph.TextAlign;
+import org.apache.poi.sl.usermodel.TextShape.TextDirection;
+import org.apache.poi.xslf.usermodel.SlideLayout;
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xslf.usermodel.XSLFShape;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.xslf.usermodel.XSLFSlideLayout;
+import org.apache.poi.xslf.usermodel.XSLFSlideMaster;
+import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
+import org.apache.poi.xslf.usermodel.XSLFTextRun;
+import org.apache.poi.xslf.usermodel.XSLFTextShape;
+
+public class PowerPoint
+{
+
+	public static void main(String[] args)
+	{
+		try
+		{
+			BufferedReader bufferedReader = new BufferedReader(
+					new FileReader(new File("ro2ya without.txt")));
+
+ 			// TODO Auto-generated method stub
+
+			XMLSlideShow ppt = new XMLSlideShow(
+					new FileInputStream("template.pptx"));
+       // in case that you want to call the slide master un comment the next line
+			// XSLFSlideMaster defaultMaster = ppt.getSlideMasters().get(0);
+      //verse e
+ 			String verse = "";
+			Vector<String> lines = new Vector<String>(1000);
+			// ArrayList<String>lines = new ArrayList<String>(1000);
+			int wordsPerLine = 7;
+			int tolerance = 2;
+			while ((verse = bufferedReader.readLine()) != null)
+			{
+				if (verse.length() <= 1)
+					continue;
+				StringTokenizer st = new StringTokenizer(verse, " ");
+        //here we will put wordsPerLine words per line so check if line tokens are more than wordsPerLine
+				if (st.countTokens() > wordsPerLine )
+				{
+					int tokenCount = 0;
+					StringBuffer line = new StringBuffer();
+					while (st.hasMoreTokens())
+					{
+						line.append(st.nextToken());
+						line.append(" ");
+						tokenCount++;
+						if (tokenCount % wordsPerLine == 0)
+						{
+							lines.add(line.toString().trim());
+							line = new StringBuffer();
+						}
+					}
+					// append the remaining tokens after the last line was added
+					// ex:12 token first 7 will be added and the last 5 added here
+					if (line.toString().length() > 1)
+						lines.add(line.toString().trim());
+				} 
+        else  //the verse is less than wordsPerLine 
+				{
+					lines.add(verse);
+				}
+			}
+			// for(String line : lines)
+			Iterator<String> iterator = lines.iterator();
+			String line = "";
+			XSLFSlideMaster slideMaster = ppt.getSlideMasters().get(0);
+			
+			XSLFSlideLayout titleLayout = slideMaster
+					.getLayout(SlideLayout.TITLE);
+
+			while (iterator.hasNext())
+			{
+				XSLFSlide slide = ppt.createSlide();
+				List<XSLFShape> shapes = slide.getShapes();
+				 	
+				for (int j = 0; j < shapes.size(); j++)
+				{
+					XSLFTextShape shape = (XSLFTextShape) shapes.get(j);// slide.getPlaceholder(j);
+					shape.clearText();
+					if (iterator.hasNext())
+					{
+						line = iterator.next();
+            // in case the current line is the a chapter title we will make it one a Title slide alone
+						if (line.startsWith("سفر رؤيا يوحنا اللاهوتي "))
+						{
+							addTitleSlide(line, ppt);
+							break;
+						}
+						XSLFTextParagraph paragraph = shape
+								.addNewTextParagraph();
+						XSLFTextRun run1 = paragraph.addNewTextRun();
+						run1.setText(line);
+            //to avoid the default behavior of PowerPoint that bullting text in text box
+						paragraph.setBullet(false);
+						paragraph.setTextAlign(TextAlign.CENTER);
+            //alternate way using shape
+//						shape.setTextDirection(TextDirection.VERTICAL);
+//						shape.getTextBody().appendText(line, true);
+					//	shape.setHorizontalCentered(true);
+					
+					}
+				}
+			}
+
+			FileOutputStream out = new FileOutputStream("رؤية.pptx");
+			ppt.write(out);
+			ppt.close();
+			out.close();
+			bufferedReader.close();
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		System.out.println("finished");
+		try
+		{
+			Runtime.getRuntime().exec(
+					"explorer E:\\mobile apps2\\PowerPoint2021\\رؤية.pptx");
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	static void addTitleSlide(String text, XMLSlideShow ppt)
+	{
+		XSLFSlide slide = ppt.createSlide();
+		XSLFTextShape shape = (XSLFTextShape) slide.getShapes().get(0);
+		shape.clearText();
+		XSLFTextParagraph paragraph = shape
+				.addNewTextParagraph();
+		XSLFTextRun run1 = paragraph.addNewTextRun();
+		run1.setText(text);
+		
+		paragraph.setBullet(false);
+		paragraph.setTextAlign(TextAlign.CENTER);
+
+		shape = (XSLFTextShape) slide.getShapes().get(1);
+		shape.clearText();
+	}
+
+}
