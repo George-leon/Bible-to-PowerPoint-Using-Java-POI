@@ -1,5 +1,5 @@
-# Bible-to-PowerPoint-Using-Java-POI
-* This is a program that will extract the bible chapter's verses to PowerPoint file, that each slide on it contains a two lines each contain 7 words as requested.
+# Text-to-PowerPoint-Using-Java-POI
+* This is a program that will extract the Holy Bible as a case chapter's verses to PowerPoint file, that each slide on it contains a two lines each contain 7 words as requested.
 * The PowerPoint file template is prepared with green screen chroma to be used in channles : CTV , LOGOS 
 * We used this to generate the 4 books; "Mathew, Luke, Mark, John" and The Book of Revelation in the Holy Week
 # Requirements
